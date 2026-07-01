@@ -1,0 +1,18 @@
+{
+  "id": "007-login-form",
+  "title": "Add a shadcn login form to /login",
+  "depends_on": ["002-shadcn-card"],
+  "skills": ["frontend-design", "compose-component"],
+  "context": "Resolve the app root from JOURNAL.md (recorded by 001-scaffold-nextjs). The Card and Button shadcn components already exist from earlier tasks; reuse them rather than restyling from scratch.",
+  "goal": "A /login route renders an accessible email + password form built from shadcn components, with client-side required-field validation, and the page builds and serves without errors.",
+  "acceptance": [
+    "src/app/login/page.tsx exists and imports Card and Button from @/components/ui.",
+    "The form has labelled email and password inputs and a submit button; submitting with an empty field shows a validation message and does not navigate.",
+    "Run `bun run build` from the app root — exits 0.",
+    "Start the dev server on port 3000, then via mcp__claude-in-chrome__ open http://localhost:3000/login, confirm the form renders and empty-submit validation fires, and capture a screenshot. Stop the server after."
+  ],
+  "tests": [
+    "Add a component test asserting the login form renders both inputs and the submit button.",
+    "Add a test asserting that submitting with an empty email surfaces a validation error."
+  ]
+}

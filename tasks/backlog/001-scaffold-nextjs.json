@@ -1,0 +1,21 @@
+{
+  "id": "001-scaffold-nextjs",
+  "title": "Scaffold Next.js app with Bun (root, src/ pattern)",
+  "depends_on": [],
+  "skills": [],
+  "context": "Scaffold with Bun using the src/ pattern, e.g. `bun create next-app@latest <target> --ts --tailwind --app --src-dir --import-alias \"@/*\" --use-bun --yes` (non-interactive). PREFER the repo ROOT: because create-next-app refuses a non-empty directory, scaffold into a temporary empty dir and then move all generated files (including dotfiles) into the repo root, PRESERVING the loop infra (.git/, .claude/, tasks/, AGENT_LOOP.md, run-backlog.sh, scripts/). If a clean root merge is not possible, FALL BACK to scaffolding into web/.",
+  "goal": "A Next.js app is scaffolded with Bun using the src/ directory pattern, living at the repo root (fallback: web/), and its dev server serves the default Next.js landing page.",
+  "acceptance": [
+    "Record that we are using bun as our preferred package manager and CLI tool of choice in JOURNAL.md",
+    "Record the chosen app root — \".\" (repo root) or \"web\" — in JOURNAL.md (a durable decision dependent tasks rely on) so paths can be resolved. All checks below run from that app root.",
+    "package.json at the app root exists and lists next, react, and react-dom in dependencies.",
+    "The src/ directory pattern is in effect: src/app/page.tsx exists under the app root (app code lives under src/, not directly at the app root).",
+    "bun.lock (or bun.lockb) exists at the app root and no package-lock.json / yarn.lock / pnpm-lock.yaml is present there — proving Bun, not another manager, was used.",
+    "Run `bun install` from the app root — exits 0.",
+    "Run `bun run build` from the app root — exits 0 (Next.js production build succeeds).",
+    "Start the dev server on port 3000 in the background from the app root (e.g. `bunx --bun next dev -p 3000`); `curl -si http://localhost:3000` returns HTTP 200.",
+    "Using Claude browser automation (mcp__claude-in-chrome__ navigate + screenshot), open http://localhost:3000 and confirm the DEFAULT Next.js landing page renders (Next.js branding plus the 'Get started by editing src/app/page.tsx' / 'Deploy now' text). Describe what was observed and capture a screenshot as proof.",
+    "Stop the background dev server after verification."
+  ],
+  "tests": []
+}

@@ -1,0 +1,18 @@
+{
+  "id": "002-shadcn-card",
+  "title": "Add shadcn/ui (Tailwind v4) and render a Card on the homepage",
+  "depends_on": ["001-scaffold-nextjs"],
+  "skills": [],
+  "context": "Resolve the app root from JOURNAL.md (recorded by 001-scaffold-nextjs: \".\" repo root, or \"web\"); run all commands and paths below relative to it. Follow https://ui.shadcn.com/docs/installation/next.",
+  "goal": "shadcn/ui is initialized in the app via its Bun CLI with Tailwind v4, the Card component is added, imported on the homepage, and it renders correctly in the browser.",
+  "acceptance": [
+    "Initialize shadcn/ui via Bun (e.g. `bunx --bun shadcn@latest init`); components.json exists at the app root.",
+    "Tailwind v4 is installed and configured: package.json shows tailwindcss at v4 (^4), and the CSS uses the v4 setup (`@import \"tailwindcss\";` with `@tailwindcss/postcss` in the PostCSS config) — not a v3 tailwind.config.js `content` + `@tailwind` directives setup.",
+    "Run `bunx --bun shadcn@latest add card` from the app root — exits 0; src/components/ui/card.tsx exists.",
+    "src/app/page.tsx imports Card (and subcomponents like CardHeader/CardTitle/CardContent) from @/components/ui/card and renders a Card with visible text content.",
+    "Run `bun run build` from the app root — exits 0.",
+    "Start the dev server on port 3000 in the background, then using Claude browser automation open http://localhost:3000 and confirm the Card renders and visually matches shadcn's default card (bordered, rounded, padded surface containing the header/content text). Capture a screenshot as proof.",
+    "Stop the background dev server after verification."
+  ],
+  "tests": []
+}

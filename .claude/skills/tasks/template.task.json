@@ -1,0 +1,14 @@
+{
+  "id": "000-short-kebab-slug",
+  "title": "One-line human summary of the work",
+  "depends_on": [],
+  "skills": [],
+  "model": "opus",
+  "context": "Optional background / approach / pointers to prior decisions. Not a pass/fail check.",
+  "goal": "The end state in one tight paragraph — what is true when this is done.",
+  "acceptance": [
+    "A concrete, command-verifiable check. e.g. Run `bun run build` — exits 0.",
+    "Another check whose output the run can paste as proof."
+  ],
+  "tests": []
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simpleclosure.local/schemas/task.schema.json",
+  "title": "Backlog Task",
+  "description": "One unit of work on the tasks/ kanban board. Exactly one JSON file per task, named <id>.json, living in a lane directory under tasks/ (backlog | in_progress | blocked | done). The lane IS the status; move lanes with `git mv`. Ordering within a lane is lexical by filename, so the numeric id prefix controls execution order.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "title", "goal", "acceptance"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9]{3}-[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Stable identifier. MUST equal the filename without .json. Convention: a 3-digit ordering prefix + kebab slug, e.g. \"001-scaffold-nextjs\"."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-line human summary. Used in commit messages and progress output."
+    },
+    "depends_on": {
+      "type": "array",
+      "default": [],
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[0-9]{3}-[a-z0-9]+(-[a-z0-9]+)*$" },
+      "description": "ids of tasks that must be in tasks/done/ before this task is actionable. The selector will not pick this task until every listed id is done."
+    },
+    "skills": {
+      "type": "array",
+      "default": [],
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Claude Code skill names the run should load (via the Skill tool) BEFORE implementing — e.g. \"frontend-design\", \"compose-component\". Load only what the task genuinely needs."
+    },
+    "model": {
+      "type": "string",
+      "default": "opus",
+      "enum": [
+        "opus",
+        "sonnet",
+        "haiku",
+        "fable",
+        "claude-opus-4-8",
+        "claude-sonnet-5",
+        "claude-haiku-4-5-20251001",
+        "claude-fable-5"
+      ],
+      "description": "Anthropic model the run uses, passed verbatim to `claude --model`. Aliases (\"opus\", \"sonnet\", \"haiku\", \"fable\") resolve to the latest of that tier; the `claude-*` forms pin an exact version. Omit to use the default, \"opus\"."
+    },
+    "context": {
+      "type": "string",
+      "description": "Optional background the run needs but which is NOT itself a pass/fail check: how to approach the work, pointers to prior decisions (e.g. \"resolve the app root from JOURNAL.md\"), suggested commands. Keep checks out of here — those go in acceptance."
+    },
+    "goal": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The end state in one tight paragraph. What is true when this task is done. Outcome, not steps."
+    },
+    "acceptance": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "The pass/fail contract. EACH item must be verifiable by a real command (or a browser check) whose output the run pastes into the transcript. Prefer concrete, copy-pasteable checks: `bun run build` exits 0; file X exists; curl returns 200. Ambiguous items force the task to be blocked, so make them checkable."
+    },
+    "tests": {
+      "type": "array",
+      "default": [],
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Tests the run must AUTHOR (not just run) and leave green before the task can be marked done — e.g. \"Add a test asserting GET / returns 200\". These are additional verification the run writes into the codebase, beyond the acceptance checks."
+    }
+  }
+}
