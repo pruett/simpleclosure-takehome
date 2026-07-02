@@ -18,3 +18,10 @@ Format: one `## <task-id> — <title>` section with `-` bullets beneath it.
 
 ---
 <!-- entries below, newest at the bottom -->
+
+## 001-scaffold-nextjs — Scaffold Next.js app with Bun (root, src/ pattern)
+- **Package manager / CLI: Bun** is the preferred tool for this repo. Use `bun install`, `bun run <script>`, and `bunx --bun ...` — do NOT use npm/yarn/pnpm (no `package-lock.json`/`yarn.lock`/`pnpm-lock.yaml`; the lockfile is `bun.lock`).
+- **App root: `.` (repo ROOT)** — the Next.js app lives directly at the repo root, not in `web/`. All app paths resolve from root: `package.json`, `src/app/page.tsx`, `bun.lock`, `next.config.ts`, etc. Dependent tasks should assume root, not `web/`.
+- Next.js version is **16.2.10** (App Router, Turbopack, Tailwind v4, `src/` dir, import alias `@/*`). This is a newer major with breaking changes vs. Next 15 — the scaffold's `AGENTS.md`/`CLAUDE.md` note it; consult `node_modules/next/dist/docs/` when unsure.
+- Default landing page wording in Next 16 is "To get started, edit the page.tsx file." + "Deploy Now" (not Next 15's "Get started by editing src/app/page.tsx").
+- Dev server: `bunx --bun next dev -p 3000`.
