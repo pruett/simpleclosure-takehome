@@ -1,0 +1,3 @@
+[test]
+# Preload: stub `server-only` and load `.env.local` before any test runs.
+preload = ["./src/test/setup-tests.ts"]

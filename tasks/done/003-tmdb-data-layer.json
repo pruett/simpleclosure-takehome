@@ -1,0 +1,25 @@
+{
+  "id": "003-tmdb-data-layer",
+  "title": "Server-only TMDB data layer for /discover/movie with colocated tests",
+  "depends_on": ["001-scaffold-nextjs"],
+  "skills": [],
+  "context": "Resolve the app root from JOURNAL.md (recorded by 001-scaffold-nextjs); run all commands/paths relative to it. Per AGENTS.md this Next.js version has breaking changes vs your training data — BEFORE writing any code, read the local docs and follow their stated data-layer best practices: node_modules/next/dist/docs/01-app/01-getting-started/06-fetching-data.md, node_modules/next/dist/docs/01-app/01-getting-started/08-caching.md, node_modules/next/dist/docs/01-app/02-guides/data-security.md (data access layer + server-only), and node_modules/next/dist/docs/01-app/02-guides/environment-variables.md. TMDB: GET https://api.themoviedb.org/3/discover/movie with api_key query param; the key is 62df2cd3a4881de6558bc68cd67cca20 (put it in .env.local; commit .env.example with the variable name and this key documented since it is a takehome-provided key — never hardcode it in source). Design the module to take options for one filter (default filter: with_genres=878, Science Fiction) and a sort. The takehome requires sorting 'using a method and property of your choice' — apply the sort in our own code (e.g. Array.prototype.toSorted on vote_average descending) on the fetched page rather than relying solely on TMDB's sort_by param. Tests hit the real TMDB API (network required); keep them minimal and colocated next to the module per the spec. Toolchain is Bun: use `bun test` and add a package.json \"test\" script so the loop's standing test gate picks it up.",
+  "goal": "A typed, server-only TMDB data-layer module exists (e.g. src/lib/tmdb.ts, colocated with its tests) that fetches page 1 of /discover/movie with a genre filter applied and returns movies sorted in our code by a chosen property, reading the API key from the environment; colocated bun tests prove the endpoint works and that the filter and sort behave as expected, and the production build passes.",
+  "acceptance": [
+    "JOURNAL.md records the data-layer decisions a dependent UI task needs: module path, exported function signature(s), the default filter (genre id) and the sort property/direction chosen.",
+    "The data-layer module exists under src/ (path recorded in JOURNAL.md), exports a typed function that fetches https://api.themoviedb.org/3/discover/movie page 1, and its first import is the `server-only` package.",
+    "The `server-only` package is listed in package.json dependencies.",
+    "The module reads the TMDB API key via environment variable (no occurrence of the literal key in src/ — verify with `grep -r 62df2cd3 src/` returning nothing); .env.local contains the key and .env.example is committed documenting it.",
+    "The module accepts a genre filter option applied as with_genres on the request (default 878) and applies sorting in our own code on a chosen property (e.g. vote_average descending) — not solely via TMDB's sort_by param.",
+    "Colocated test file sits next to the module (e.g. src/lib/tmdb.test.ts) — same directory, matching name.",
+    "Run `bun test` from the app root — exits 0, and the output shows a passing test asserting the endpoint is functional (returns a non-empty list of movies with expected shape: id, title, poster_path, and the chosen sort property).",
+    "The passing tests include one asserting the genre filter works (every returned movie's genre_ids contains the requested genre id) and one asserting the results are ordered by the chosen sort property.",
+    "package.json defines a \"test\" script that runs bun test, and `bun run test` exits 0.",
+    "Run `bun run build` from the app root — exits 0."
+  ],
+  "tests": [
+    "Add a colocated test asserting a real /discover/movie fetch returns a non-empty array of movies each having id, title, poster_path and the chosen sort property.",
+    "Add a colocated test asserting every movie returned with the default filter has the requested genre id in genre_ids.",
+    "Add a colocated test asserting the returned movies are sorted by the chosen property in the chosen direction."
+  ]
+}
