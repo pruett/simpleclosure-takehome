@@ -1,5 +1,7 @@
 import 'server-only'
 
+import { cacheLife, cacheTag } from 'next/cache'
+
 /**
  * Data Access Layer (DAL) for TMDB `/discover/movie`, per the Next.js
  * data-security guide (`data/` directory, server-only, minimal DTOs).
@@ -8,9 +10,17 @@ import 'server-only'
  * `server-only` import above guarantees a build error if it is ever imported
  * into a client bundle. Raw TMDB records never leave this module — responses
  * are mapped to the minimal {@link Movie} DTO before being returned.
+ *
+ * Caching follows the Cache Components model (`cacheComponents: true`):
+ * {@link discoverMovies} is a `use cache` function, so its result — keyed by
+ * the options argument — is cached at the data level and included in the
+ * route's prerendered static shell.
  */
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
+
+/** Cache tag for all TMDB movie data; expire via `revalidateTag`/`updateTag`. */
+export const MOVIES_CACHE_TAG = 'tmdb-movies'
 
 /** Science Fiction. Default genre applied as the `with_genres` filter. */
 export const DEFAULT_GENRE_ID = 878
@@ -70,11 +80,20 @@ function getApiKey(): string {
  * Fetch page 1 of TMDB `/discover/movie` with a genre filter applied, then
  * sort the returned page in our own code by the chosen property/direction.
  *
+ * Data-level `use cache`: the options argument is the cache key, so each
+ * genre/sort combination caches independently. TMDB catalog data changes
+ * infrequently, so the `hours` profile replaces the previous fetch-level
+ * `next: { revalidate: 3600 }`.
+ *
  * @returns The movies for page 1, sorted client-side (in our code).
  */
 export async function discoverMovies(
   options: DiscoverMoviesOptions = {},
 ): Promise<Movie[]> {
+  'use cache'
+  cacheLife('hours')
+  cacheTag(MOVIES_CACHE_TAG)
+
   const {
     genreId = DEFAULT_GENRE_ID,
     sortBy = 'vote_average',
@@ -86,10 +105,7 @@ export async function discoverMovies(
   url.searchParams.set('page', '1')
   url.searchParams.set('with_genres', String(genreId))
 
-  const res = await fetch(url, {
-    // Cache the response; TMDB catalog data changes infrequently.
-    next: { revalidate: 3600 },
-  })
+  const res = await fetch(url)
 
   if (!res.ok) {
     throw new Error(`TMDB request failed: ${res.status} ${res.statusText}`)

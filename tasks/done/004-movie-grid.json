@@ -1,0 +1,26 @@
+{
+  "id": "004-movie-grid",
+  "title": "Render TMDB movies in a responsive grid of shadcn Cards on the homepage",
+  "depends_on": ["002-shadcn-card", "003-tmdb-data-layer"],
+  "skills": ["frontend-design"],
+  "context": "Resolve the app root from JOURNAL.md; also resolve the data-layer module path, exported function signature, and chosen filter/sort recorded there by 003-tmdb-data-layer — consume that module, do not re-implement fetching. Per AGENTS.md this Next.js version has breaking changes vs your training data — BEFORE writing any code, read the local docs: node_modules/next/dist/docs/01-app/01-getting-started/12-images.md (next/image + allowing remote hosts), 05-server-and-client-components.md, 06-fetching-data.md, and 08-caching.md (Cache Components); follow their conventions (e.g. how next.config.ts allows remote image hosts in THIS version). ARCHITECTURE: use the Cache Components model — enable `cacheComponents: true` in next.config.ts, cache TMDB data at the data level with the `use cache` directive + `cacheLife`/`cacheTag` in the 003 module (replacing any fetch-level `next: { revalidate }`), and stream the grid behind a `<Suspense>` boundary with a skeleton fallback so the static shell (header + fallback) prerenders. The homepage must stay a server component so the API key never reaches the client. TMDB poster URLs are https://image.tmdb.org/t/p/w500{poster_path}; poster_path can be null, so render a graceful non-broken fallback (e.g. a styled placeholder block). Show vote_average as the 'one additional property' (release year is fine as a secondary detail). SCOPE GUARD: hover effects, CSS transitions, and filter/sort UI are deliberately deferred to tasks 005/006 — do not add them here. Toolchain is Bun.",
+  "goal": "The homepage server-renders real TMDB movies from the 003 data layer in a responsive Tailwind grid of shadcn Cards using the Cache Components model (cacheComponents enabled, `use cache` data layer, Suspense-wrapped grid with a skeleton loading state), each Card showing a next/image poster (with a graceful fallback when poster_path is null), the title, and the vote_average rating; the production build passes and the grid is verified in the browser at multiple viewport widths.",
+  "acceptance": [
+    "next.config.ts sets `cacheComponents: true`, and `bun run build` reports the `/` route as prerendered (static shell) with the revalidate/expire times from the data layer's cacheLife profile.",
+    "The data-layer function in the module recorded in JOURNAL.md is a `use cache` function using `cacheLife`/`cacheTag` from next/cache — no fetch-level `next: { revalidate }` options remain.",
+    "src/app/page.tsx contains no 'use client' directive (it remains a server component) and renders the grid inside a `<Suspense>` boundary whose fallback is a skeleton matching the grid layout; the async grid component imports the data-layer function from the 003 module.",
+    "No TMDB fetch occurs outside the data layer: `grep -r \"themoviedb\" src/ --include=*.tsx` returns no matches (the URL lives only in the 003 module).",
+    "The grid component imports Card subcomponents from @/components/ui/card and next/image, and renders one Card per movie showing poster, title, and vote_average.",
+    "next.config.ts allows the image.tmdb.org remote host using the convention documented in the local next/image docs, and the rendered poster <img> elements on the page are served through the Next.js image optimizer (src contains /_next/image).",
+    "The grid container uses responsive Tailwind column classes (e.g. grid-cols-1 with sm:/md:/lg: variants increasing the count).",
+    "A null poster_path renders a styled placeholder rather than a broken image (verify via code: the poster render site branches on poster_path; if page 1 has no null case, state that and show the fallback branch).",
+    "Run `bun test` from the app root — exits 0 (the test preload must stub next/cache the same way it stubs server-only, since `use cache` is not compiled under bun test).",
+    "Run `bun run build` from the app root — exits 0.",
+    "Start the server on an open port in the background; via browser tooling open the page and confirm a grid of real movie cards renders with visible posters, titles, and numeric ratings — capture a screenshot as proof; confirm the served HTML contains the prerendered movie content and does NOT contain the TMDB API key or the api.themoviedb.org host.",
+    "View the page at a narrow (~375px) and a wide (~1280px) width and confirm the column count differs between them.",
+    "Confirm the page loads with no console errors (image host misconfiguration would surface here).",
+    "Stop the background server after verification.",
+    "JOURNAL.md records the grid/card component file path(s), the extra-property choice (vote_average), and the cache-components decisions (tag name, cacheLife profile, test stub) so tasks 005/006 can build on them."
+  ],
+  "tests": []
+}

@@ -9,6 +9,15 @@ import { mock } from 'bun:test'
 //    stub it to an empty module to let those modules load under `bun test`.
 mock.module('server-only', () => ({}))
 
+// 1b. The data layer uses the `use cache` directive with `cacheLife`/`cacheTag`
+//     from `next/cache`. Under `bun test` the directive is not compiled (it's a
+//     no-op string) and the real `cacheLife`/`cacheTag` throw outside a Next.js
+//     server context, so stub them as no-ops — tests exercise the uncached path.
+mock.module('next/cache', () => ({
+  cacheLife: () => {},
+  cacheTag: () => {},
+}))
+
 // 2. `bun test` runs with NODE_ENV=test and, following the dotenv-flow
 //    convention, does NOT auto-load `.env.local`. Load it explicitly so the
 //    server-only data layer can read TMDB_API_KEY during tests.
