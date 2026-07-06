@@ -3,6 +3,7 @@
   "title": "Add shadcn/ui (Tailwind v4) and render a Card on the homepage",
   "depends_on": ["001-scaffold-nextjs"],
   "skills": [],
+  "model": "opus",
   "context": "Resolve the app root from JOURNAL.md (recorded by 001-scaffold-nextjs: \".\" repo root, or \"web\"); run all commands and paths below relative to it. Follow https://ui.shadcn.com/docs/installation/next.",
   "goal": "shadcn/ui is initialized in the app via its Bun CLI with Tailwind v4, the Card component is added, imported on the homepage, and it renders correctly in the browser.",
   "acceptance": [

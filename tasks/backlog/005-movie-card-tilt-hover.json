@@ -1,0 +1,23 @@
+{
+  "id": "005-movie-card-tilt-hover",
+  "title": "Add a CSS-only 3D tilt hover effect to the homepage movie cards",
+  "depends_on": ["004-movie-grid"],
+  "skills": ["frontend-design"],
+  "model": "opus",
+  "context": "The movie card component is src/components/movie-card.tsx and the grid is src/components/movie-grid.tsx (recorded in JOURNAL.md by 004-movie-grid). Styling is Tailwind v4 (arbitrary values like [perspective:1000px] and [transform-style:preserve-3d] are available; a custom utility in globals.css is also acceptable if a class combination gets unwieldy). APPROACH — pure CSS, deliberately simple: give the card's wrapper a perspective, and on :hover apply a subtle fixed rotateX/rotateY tilt (a few degrees) with optional translateZ/scale lift and a deepened shadow, eased by a transform transition. A fixed tilt on hover is the whole scope — do NOT add JS mouse-position tracking, event handlers, a 'use client' directive, or any new npm dependency; the card must remain a server component. Keep the tilt tasteful (roughly 2-6deg) so text stays readable and neighboring cards aren't overlapped disruptively. Respect accessibility: gate the motion behind Tailwind's motion-reduce variant (or a prefers-reduced-motion media query) so reduced-motion users get no tilt. Toolchain is Bun.",
+  "goal": "Hovering a movie card on the homepage smoothly tilts it in 3D (perspective + rotate transform with a depth cue like lift/shadow) and it returns to rest on mouse-out, implemented entirely with CSS — no JavaScript interactivity, no client components, no new dependencies — with lint, tests, and the production build all passing and the effect verified in the browser.",
+  "acceptance": [
+    "The tilt is implemented in CSS only: src/components/movie-card.tsx (plus globals.css if used) gains perspective + hover rotate/translate transform classes with a transition, and contains no onMouseMove/onMouseEnter/onPointerMove handlers.",
+    "grep -l \"use client\" src/components/movie-card.tsx src/components/movie-grid.tsx returns no matches (both remain server components).",
+    "git diff HEAD -- package.json shows no added dependencies or devDependencies.",
+    "The effect is disabled under prefers-reduced-motion: the transform/transition classes use Tailwind's motion-reduce variant or an equivalent media query (show the code).",
+    "Run `bun test` from the app root — exits 0.",
+    "Run `bun run lint` from the app root — exits 0.",
+    "Run `bun run build` from the app root — exits 0.",
+    "Start the server on an open port in the background; via mcp__claude-in-chrome__ tools open the homepage, hover a movie card, and confirm it visibly tilts with 3D depth and returns to rest on mouse-out — capture a screenshot of the resting state and one mid-hover as proof.",
+    "Confirm the page produces no console errors while hovering across several cards.",
+    "Stop the background server after verification.",
+    "JOURNAL.md records the tilt implementation (classes/utility used, tilt angles, reduced-motion handling) for future tasks."
+  ],
+  "tests": []
+}

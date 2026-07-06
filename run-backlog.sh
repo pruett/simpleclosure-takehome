@@ -14,7 +14,7 @@ cd "$(dirname "$0")"
 
 MAX_TURNS="${MAX_TURNS:-50}"          # per-task safety cap
 LOGDIR="${LOGDIR:-.agent-runs}"       # raw stream-json is tee'd here per run
-DEFAULT_MODEL="${DEFAULT_MODEL:-opus}"  # used when a card omits "model"
+DEFAULT_MODEL="${DEFAULT_MODEL:-opus}"  # defensive fallback; schema validation requires every card to state "model"
 mkdir -p "$LOGDIR"
 
 # Optional sandbox settings file: `SANDBOX_SETTINGS=path ./run-backlog.sh`

@@ -3,6 +3,7 @@
   "title": "Scaffold Next.js app with Bun (root, src/ pattern)",
   "depends_on": [],
   "skills": [],
+  "model": "opus",
   "context": "Scaffold with Bun using the src/ pattern, e.g. `bun create next-app@latest <target> --ts --tailwind --app --src-dir --import-alias \"@/*\" --use-bun --yes` (non-interactive). PREFER the repo ROOT: because create-next-app refuses a non-empty directory, scaffold into a temporary empty dir and then move all generated files (including dotfiles) into the repo root, PRESERVING the loop infra (.git/, .claude/, tasks/, AGENT_LOOP.md, run-backlog.sh, scripts/). If a clean root merge is not possible, FALL BACK to scaffolding into web/.",
   "goal": "A Next.js app is scaffolded with Bun using the src/ directory pattern, living at the repo root (fallback: web/), and its dev server serves the default Next.js landing page.",
   "acceptance": [

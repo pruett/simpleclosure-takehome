@@ -5,7 +5,7 @@
   "description": "One unit of work on the tasks/ kanban board. Exactly one JSON file per task, named <id>.json, living in a lane directory under tasks/ (backlog | in_progress | blocked | done). The lane IS the status; move lanes with `git mv`. Ordering within a lane is lexical by filename, so the numeric id prefix controls execution order.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "title", "goal", "acceptance"],
+  "required": ["id", "title", "goal", "acceptance", "model"],
   "properties": {
     "id": {
       "type": "string",
@@ -43,7 +43,7 @@
         "claude-haiku-4-5-20251001",
         "claude-fable-5"
       ],
-      "description": "Anthropic model the run uses, passed verbatim to `claude --model`. Aliases (\"opus\", \"sonnet\", \"haiku\", \"fable\") resolve to the latest of that tier; the `claude-*` forms pin an exact version. Omit to use the default, \"opus\"."
+      "description": "Anthropic model the run uses, passed verbatim to `claude --model`. Aliases (\"opus\", \"sonnet\", \"haiku\", \"fable\") resolve to the latest of that tier; the `claude-*` forms pin an exact version. REQUIRED — every card must state its model explicitly; \"opus\" is the default choice."
     },
     "context": {
       "type": "string",

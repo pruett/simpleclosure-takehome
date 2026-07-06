@@ -3,6 +3,7 @@
   "title": "Add a shadcn login form to /login",
   "depends_on": ["002-shadcn-card"],
   "skills": ["frontend-design", "compose-component"],
+  "model": "opus",
   "context": "Resolve the app root from JOURNAL.md (recorded by 001-scaffold-nextjs). The Card and Button shadcn components already exist from earlier tasks; reuse them rather than restyling from scratch.",
   "goal": "A /login route renders an accessible email + password form built from shadcn components, with client-side required-field validation, and the page builds and serves without errors.",
   "acceptance": [

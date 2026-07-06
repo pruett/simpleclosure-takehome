@@ -48,8 +48,8 @@ for (const k of ['depends_on', 'skills', 'tests'])
   if (task[k] !== undefined && !isStrArr(task[k]) && !(Array.isArray(task[k]) && task[k].length === 0))
     errs.push(`${k}: must be a string[]`);
 if (task.context !== undefined && typeof task.context !== 'string') errs.push('context: must be a string');
-if (task.model !== undefined && !MODELS.includes(task.model))
-  errs.push(`model: must be one of ${MODELS.join(', ')}`);
+if (!MODELS.includes(task.model))
+  errs.push(`model: required, must be one of ${MODELS.join(', ')}`);
 
 if (errs.length) {
   console.error(`Invalid task card ${taskPath}:\n  - ${errs.join('\n  - ')}`);

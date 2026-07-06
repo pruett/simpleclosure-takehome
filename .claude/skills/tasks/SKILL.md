@@ -31,7 +31,7 @@ reference.
 | `acceptance` | ✓ | `string[]`, the pass/fail contract. Each item verifiable by a real command/browser check whose **output the run pastes**. |
 | `depends_on` | | ids that must be in `tasks/done/` first. The selector skips this card until they are. Default `[]`. |
 | `skills` | | Claude Code skill names to load (via the Skill tool) before implementing, e.g. `frontend-design`. Default `[]`. |
-| `model` | | Anthropic model passed to `claude --model` for this task. Aliases (`opus`, `sonnet`, `haiku`, `fable`); see the schema enum. Default `opus`. |
+| `model` | ✓ | Anthropic model passed to `claude --model` for this task. Aliases (`opus`, `sonnet`, `haiku`, `fable`); see the schema enum. State it explicitly (`opus` is the conventional choice). |
 | `context` | | Background/approach/pointers that are *not* pass/fail checks (e.g. "resolve app root from JOURNAL.md"). |
 | `tests` | | Tests the run must **author and leave green**, beyond the acceptance checks. Default `[]`. |
 

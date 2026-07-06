@@ -1,0 +1,28 @@
+{
+  "id": "006-client-side-sorting",
+  "title": "Client-side sort controls (score asc/desc, alphabetical) above the homepage movie grid",
+  "depends_on": ["004-movie-grid"],
+  "skills": ["frontend-design"],
+  "model": "opus",
+  "context": "Read the relevant guides in node_modules/next/dist/docs/ (server/client components, use cache / Cache Components) before writing code — this Next.js version has breaking changes. CURRENT STATE: src/data/tmdb.ts is the server-only DAL; its discoverMovies() applies sortMovies() (score desc) inside the 'use cache' function, and src/components/movie-grid.tsx (async server component) renders the result behind the page's Suspense boundary. REEVALUATION THIS TASK MAKES: sorting becomes a client concern. Move the sort logic into a client-safe shared module (e.g. src/lib/) that supports two sort keys — vote_average (asc/desc) and title (alphabetical, locale-aware via localeCompare) — and have the DAL and the new client component both use it; the DAL keeps returning a sensibly-ordered default (score desc) so the prerendered shell is unchanged, but the client re-sorts without refetching. Existing sortMovies tests in src/data/tmdb.test.ts move/extend with the helper. ARCHITECTURE CONSTRAINTS (keep the existing decisions): data fetching stays in the cached server component; do NOT read searchParams in src/app/page.tsx or make the route dynamic — sort state is plain client state (useState), no URL sync, no server round-trip. Push the client boundary to a leaf: add a NEW 'use client' component (e.g. src/components/sortable-movie-grid.tsx or a controls+list pair) that receives the Movie[] DTO as props from the server component and owns sort state + control UI; src/app/page.tsx, src/components/movie-grid.tsx, and src/components/movie-card.tsx must NOT gain 'use client' (task 005 asserts the card/grid stay server components). UI: two controls sit directly above the grid — one sorts by score with an ascending/descending choice, one sorts alphabetically by title; exactly one sort is active at a time and the active choice is visually evident; default is score descending (today's behavior). Match the existing dark styling; adding a shadcn/ui control component (e.g. toggle-group or select) is fine. The MovieGridSkeleton fallback should still mirror the final layout (account for the controls' height so nothing shifts). Filtering beyond sorting is deliberately OUT of scope for this card. Toolchain is Bun.",
+  "goal": "The homepage shows two sort controls directly above the movie grid — sort by score (ascending or descending) and sort alphabetically by title — and choosing either reorders the already-fetched movies instantly on the client with no refetch and no navigation. Data fetching remains in the server-only DAL behind 'use cache' with the route's prerendered static shell intact; the sort logic lives in a shared client-safe module covered by unit tests; lint, tests, and the production build all pass and the behavior is verified in the browser.",
+  "acceptance": [
+    "A new client component under src/components/ contains 'use client', renders the two sort controls above the grid, and receives movies as props — grep shows 'use client' in that file only, with no matches in src/app/page.tsx, src/components/movie-grid.tsx, or src/components/movie-card.tsx.",
+    "src/data/tmdb.ts still begins with `import 'server-only'`, and the shared sort module it and the client component use imports neither 'server-only' nor anything from src/data/ (show the imports).",
+    "grep searchParams src/app/page.tsx returns no matches (the page stays a static-shell server component).",
+    "Run `bun test` from the app root — exits 0.",
+    "Run `bun run lint` from the app root — exits 0.",
+    "Run `bun run build` from the app root — exits 0, and the build output still lists the / route as prerendered/static.",
+    "Start the server on an open port in the background; via mcp__claude-in-chrome__ tools open the homepage and confirm the default order is score descending (first card has the highest visible score) — screenshot.",
+    "Switch the score control to ascending and confirm the grid reorders so the lowest-scored movie is first — screenshot.",
+    "Activate the alphabetical control and confirm the first card's title is alphabetically first among the fetched movies — screenshot.",
+    "Via mcp__claude-in-chrome__read_network_requests, confirm changing sorts triggers no document navigation and no new data/API request (the reorder is purely client-side).",
+    "Confirm no console errors while toggling between all sort options.",
+    "Stop the background server after verification.",
+    "JOURNAL.md records where the sort module and client component live, the client-boundary decision, and that sort state is client-only (no searchParams) for future tasks."
+  ],
+  "tests": [
+    "Unit tests for the shared sort module: score ascending, score descending, and alphabetical-by-title ordering (including locale-aware comparison), plus input-not-mutated.",
+    "Update src/data/tmdb.test.ts so DAL tests stay green against the relocated sort logic."
+  ]
+}
