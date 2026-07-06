@@ -14,18 +14,26 @@ export interface SortableMovie {
   vote_average: number
 }
 
-/** Identifier for each user-selectable ordering. */
-export type SortId = 'score-desc' | 'score-asc' | 'title-asc'
+/** The two sortable categories the UI exposes as buttons. */
+export type SortCategory = 'score' | 'title'
+
+/** Direction of a sort within a category. */
+export type SortDirection = 'asc' | 'desc'
+
+/** Identifier for each user-selectable ordering: `<category>-<direction>`. */
+export type SortId = `${SortCategory}-${SortDirection}`
 
 /** Default ordering — highest audience score first (the DAL's shell order). */
 export const DEFAULT_SORT_ID: SortId = 'score-desc'
 
-/** Ordered sort options, for building the control UI. */
-export const SORT_OPTIONS: ReadonlyArray<{ id: SortId; label: string }> = [
-  { id: 'score-desc', label: 'Score: high to low' },
-  { id: 'score-asc', label: 'Score: low to high' },
-  { id: 'title-asc', label: 'Title: A to Z' },
-]
+/**
+ * Direction a category starts in when it is first activated: scores read most
+ * naturally best-first, titles A-to-Z.
+ */
+export const DEFAULT_DIRECTION: Record<SortCategory, SortDirection> = {
+  score: 'desc',
+  title: 'asc',
+}
 
 /**
  * Return a new array sorted by the chosen ordering. Never mutates the input
@@ -41,6 +49,8 @@ export function sortMovies<T extends SortableMovie>(
       return movies.toSorted((a, b) => a.vote_average - b.vote_average)
     case 'title-asc':
       return movies.toSorted((a, b) => a.title.localeCompare(b.title))
+    case 'title-desc':
+      return movies.toSorted((a, b) => b.title.localeCompare(a.title))
     case 'score-desc':
     default:
       return movies.toSorted((a, b) => b.vote_average - a.vote_average)

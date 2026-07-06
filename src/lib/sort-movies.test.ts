@@ -45,6 +45,14 @@ describe('sortMovies', () => {
     ])
   })
 
+  test('sorts reverse-alphabetically by title (locale-aware)', () => {
+    expect(titlesOf(sortMovies(sample, 'title-desc'))).toEqual([
+      'Zoo',
+      'Éclair',
+      'apple',
+    ])
+  })
+
   test('does not mutate the input array', () => {
     const before = titlesOf(sample)
     sortMovies(sample, 'score-asc')

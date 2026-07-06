@@ -1,10 +1,19 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { ArrowDown, ArrowUp } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import { MovieCard } from "@/components/movie-card";
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import type { Movie } from "@/data/tmdb";
-import { DEFAULT_SORT_ID, type SortId, sortMovies } from "@/lib/sort-movies";
+import {
+  DEFAULT_DIRECTION,
+  DEFAULT_SORT_ID,
+  type SortCategory,
+  type SortId,
+  sortMovies,
+} from "@/lib/sort-movies";
 import { cn } from "@/lib/utils";
 
 /**
@@ -14,30 +23,61 @@ import { cn } from "@/lib/utils";
 export const MOVIE_GRID_CLASSNAME =
   "grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5";
 
-/** A single segment of the sort control; amber-filled when it is the active sort. */
-function SortButton({
-  active,
-  onClick,
-  children,
+const CATEGORY_LABELS: Record<SortCategory, string> = {
+  score: "Score",
+  title: "Title",
+};
+
+/**
+ * One button per sort category. Clicking an inactive category activates it in
+ * its default direction; clicking the active one flips the direction. Every
+ * button always shows a direction arrow (current direction when active, the
+ * category's default when inactive) so the button width never changes.
+ */
+function SortCategoryButton({
+  category,
+  sort,
+  onSelect,
 }: {
-  active: boolean;
-  onClick: () => void;
-  children: ReactNode;
+  category: SortCategory;
+  sort: SortId;
+  onSelect: (sort: SortId) => void;
 }) {
+  const [activeCategory, direction] = sort.split("-") as [
+    SortCategory,
+    "asc" | "desc",
+  ];
+  const active = activeCategory === category;
+  const next: SortId = active
+    ? `${category}-${direction === "asc" ? "desc" : "asc"}`
+    : `${category}-${DEFAULT_DIRECTION[category]}`;
+
+  const shownDirection = active ? direction : DEFAULT_DIRECTION[category];
+  const Arrow = shownDirection === "asc" ? ArrowUp : ArrowDown;
+
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
+      size="sm"
       aria-pressed={active}
-      onClick={onClick}
-      className={cn(
-        "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+      aria-label={
         active
-          ? "bg-amber-400 text-neutral-950 shadow-sm shadow-amber-400/20"
-          : "text-neutral-300 hover:text-white",
+          ? `Sorted by ${category}, ${direction === "asc" ? "ascending" : "descending"}. Reverse order`
+          : `Sort by ${category}`
+      }
+      onClick={() => onSelect(next)}
+      className={cn(
+        // The page is a fixed dark design without the `.dark` token class, so
+        // the outline variant's light-theme tokens are overridden here.
+        "border-white/10 bg-neutral-900/60 text-xs text-neutral-300 hover:bg-neutral-800 hover:text-white",
+        active &&
+          "border-amber-400 bg-amber-400 text-neutral-950 shadow-sm shadow-amber-400/20 hover:bg-amber-300 hover:text-neutral-950",
       )}
     >
-      {children}
-    </button>
+      {CATEGORY_LABELS[category]}
+      <Arrow aria-hidden className={cn(!active && "opacity-40")} />
+    </Button>
   );
 }
 
@@ -59,47 +99,10 @@ export function SortableMovieGrid({ movies }: { movies: Movie[] }) {
           Sort
         </span>
 
-        <div className="flex items-center gap-1 rounded-full bg-neutral-900/60 p-1 ring-1 ring-white/10">
-          <span className="px-2 text-xs font-medium text-neutral-500">
-            Score
-          </span>
-          <div
-            role="group"
-            aria-label="Sort by score"
-            className="flex items-center gap-1"
-          >
-            <SortButton
-              active={sort === "score-desc"}
-              onClick={() => setSort("score-desc")}
-            >
-              High → Low
-            </SortButton>
-            <SortButton
-              active={sort === "score-asc"}
-              onClick={() => setSort("score-asc")}
-            >
-              Low → High
-            </SortButton>
-          </div>
-
-          <span aria-hidden className="mx-1 h-4 w-px bg-white/10" />
-
-          <span className="px-2 text-xs font-medium text-neutral-500">
-            Title
-          </span>
-          <div
-            role="group"
-            aria-label="Sort alphabetically by title"
-            className="flex items-center gap-1"
-          >
-            <SortButton
-              active={sort === "title-asc"}
-              onClick={() => setSort("title-asc")}
-            >
-              A → Z
-            </SortButton>
-          </div>
-        </div>
+        <ButtonGroup aria-label="Sort movies">
+          <SortCategoryButton category="score" sort={sort} onSelect={setSort} />
+          <SortCategoryButton category="title" sort={sort} onSelect={setSort} />
+        </ButtonGroup>
       </div>
 
       <section aria-label="Movies" className={MOVIE_GRID_CLASSNAME}>

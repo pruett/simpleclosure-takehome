@@ -2,6 +2,7 @@ import {
   MOVIE_GRID_CLASSNAME,
   SortableMovieGrid,
 } from "@/components/sortable-movie-grid";
+import { Skeleton } from "@/components/ui/skeleton";
 import { discoverMovies } from "@/data/tmdb";
 
 /** TMDB `/discover/movie` returns 20 results per page. */
@@ -29,20 +30,20 @@ export function MovieGridSkeleton() {
   return (
     <div aria-hidden className="mx-auto max-w-7xl">
       <div className="mb-8 flex items-center gap-3">
-        <div className="h-9 w-72 max-w-full animate-pulse rounded-full bg-neutral-900/60 ring-1 ring-white/10" />
+        <Skeleton className="h-7 w-72 max-w-full rounded-lg bg-neutral-900/60 ring-1 ring-white/10" />
       </div>
 
       <section className={MOVIE_GRID_CLASSNAME}>
         {Array.from({ length: MOVIES_PER_PAGE }, (_, i) => (
-          <div
+          <Skeleton
             key={i}
-            className="animate-pulse overflow-hidden rounded-xl bg-neutral-900/60 ring-1 ring-white/10"
+            className="overflow-hidden rounded-xl bg-neutral-900/60 ring-1 ring-white/10"
           >
             <div className="aspect-[2/3] w-full bg-neutral-800" />
             <div className="px-3 py-3">
               <div className="h-4 w-3/4 rounded bg-neutral-800" />
             </div>
-          </div>
+          </Skeleton>
         ))}
       </section>
     </div>
