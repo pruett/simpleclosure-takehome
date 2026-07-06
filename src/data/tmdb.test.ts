@@ -1,10 +1,9 @@
 import { describe, expect, test } from 'bun:test'
-import {
-  DEFAULT_GENRE_ID,
-  discoverMovies,
-  sortMovies,
-  type Movie,
-} from './tmdb'
+import { DEFAULT_GENRE_ID, discoverMovies } from './tmdb'
+
+// The pure sort helper now lives in the shared client-safe module and is
+// covered by src/lib/sort-movies.test.ts. These tests exercise the DAL, whose
+// default order (score descending) is asserted below.
 
 // These tests hit the real TMDB API (network required), per the task spec.
 describe('discoverMovies (real TMDB /discover/movie)', () => {
@@ -50,24 +49,5 @@ describe('discoverMovies (real TMDB /discover/movie)', () => {
         movies[i].vote_average,
       )
     }
-  })
-})
-
-describe('sortMovies (pure, in our code)', () => {
-  const sample: Movie[] = [
-    { id: 1, title: 'A', poster_path: null, vote_average: 5.5, genre_ids: [878] },
-    { id: 2, title: 'B', poster_path: null, vote_average: 8.1, genre_ids: [878] },
-    { id: 3, title: 'C', poster_path: null, vote_average: 7.0, genre_ids: [878] },
-  ]
-
-  test('sorts by vote_average descending by default', () => {
-    expect(sortMovies(sample).map((m) => m.id)).toEqual([2, 3, 1])
-  })
-
-  test('sorts ascending when requested and does not mutate input', () => {
-    const asc = sortMovies(sample, 'vote_average', 'asc')
-    expect(asc.map((m) => m.id)).toEqual([1, 3, 2])
-    // original order preserved (toSorted returns a copy)
-    expect(sample.map((m) => m.id)).toEqual([1, 2, 3])
   })
 })

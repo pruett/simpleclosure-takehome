@@ -2,6 +2,8 @@ import 'server-only'
 
 import { cacheLife, cacheTag } from 'next/cache'
 
+import { sortMovies } from '@/lib/sort-movies'
+
 /**
  * Data Access Layer (DAL) for TMDB `/discover/movie`, per the Next.js
  * data-security guide (`data/` directory, server-only, minimal DTOs).
@@ -53,17 +55,9 @@ function toMovie(raw: TmdbDiscoverResult): Movie {
   }
 }
 
-/** The property we sort on in our own code (not solely via TMDB's `sort_by`). */
-export type SortProperty = 'vote_average'
-export type SortDirection = 'asc' | 'desc'
-
 export interface DiscoverMoviesOptions {
   /** Genre id applied as `with_genres`. Defaults to {@link DEFAULT_GENRE_ID}. */
   genreId?: number
-  /** Property to sort the fetched page by in our code. Defaults to `vote_average`. */
-  sortBy?: SortProperty
-  /** Sort direction. Defaults to `desc` (highest rated first). */
-  sortDirection?: SortDirection
 }
 
 function getApiKey(): string {
@@ -77,15 +71,18 @@ function getApiKey(): string {
 }
 
 /**
- * Fetch page 1 of TMDB `/discover/movie` with a genre filter applied, then
- * sort the returned page in our own code by the chosen property/direction.
+ * Fetch page 1 of TMDB `/discover/movie` with a genre filter applied, and
+ * return it in a sensible default order (highest audience score first).
  *
- * Data-level `use cache`: the options argument is the cache key, so each
- * genre/sort combination caches independently. TMDB catalog data changes
- * infrequently, so the `hours` profile replaces the previous fetch-level
- * `next: { revalidate: 3600 }`.
+ * Sorting is now a client concern: the shared, client-safe {@link sortMovies}
+ * helper (`@/lib/sort-movies`) applies the default here so the prerendered
+ * shell is ordered, and the client re-sorts the same data without refetching.
  *
- * @returns The movies for page 1, sorted client-side (in our code).
+ * Data-level `use cache`: the options argument is the cache key, so each genre
+ * caches independently. TMDB catalog data changes infrequently, so the `hours`
+ * profile replaces the previous fetch-level `next: { revalidate: 3600 }`.
+ *
+ * @returns The movies for page 1, ordered by the default (score descending).
  */
 export async function discoverMovies(
   options: DiscoverMoviesOptions = {},
@@ -94,11 +91,7 @@ export async function discoverMovies(
   cacheLife('hours')
   cacheTag(MOVIES_CACHE_TAG)
 
-  const {
-    genreId = DEFAULT_GENRE_ID,
-    sortBy = 'vote_average',
-    sortDirection = 'desc',
-  } = options
+  const { genreId = DEFAULT_GENRE_ID } = options
 
   const url = new URL(`${TMDB_BASE_URL}/discover/movie`)
   url.searchParams.set('api_key', getApiKey())
@@ -112,16 +105,5 @@ export async function discoverMovies(
   }
 
   const data = (await res.json()) as { results: TmdbDiscoverResult[] }
-  return sortMovies(data.results.map(toMovie), sortBy, sortDirection)
-}
-
-/** Sort movies in our own code (uses `Array.prototype.toSorted`). */
-export function sortMovies(
-  movies: Movie[],
-  sortBy: SortProperty = 'vote_average',
-  sortDirection: SortDirection = 'desc',
-): Movie[] {
-  return movies.toSorted((a, b) =>
-    sortDirection === 'desc' ? b[sortBy] - a[sortBy] : a[sortBy] - b[sortBy],
-  )
+  return sortMovies(data.results.map(toMovie))
 }
